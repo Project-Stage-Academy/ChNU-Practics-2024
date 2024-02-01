@@ -19,5 +19,13 @@ source .venv/bin/activate # or .venv\Scripts\activate on Windows
 
 Then, you'll need to install the dependencies, we using pyproject.toml for this:
 ```bash
-pip install -e .
+pip install pip --upgrade
+pip install -e .[dev] # Install dev dependencies
+```
+
+#### Testing Setup
+
+Run tests:
+```bash
+pytest
 ```
