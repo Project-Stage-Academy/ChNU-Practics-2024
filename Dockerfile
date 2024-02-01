@@ -12,4 +12,4 @@ RUN /opt/venv/bin/pip install --upgrade pip && \
 
 EXPOSE 8080
 
-CMD ["/app/entrypoint.sh]
+CMD ["/app/entrypoint.sh"]
