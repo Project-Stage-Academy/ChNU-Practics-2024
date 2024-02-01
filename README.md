@@ -83,5 +83,6 @@ We are committed to delivering a platform that is not just a marketplace for ide
 - Each user story can be broken down into smaller tasks and developed in sprints.
 - Regular feedback from both user groups (startups and investors) should be incorporated.
 
+### Contributing
 
-
+Contributing guidelines can be found [here](./docs/CONTRIBUTING.md).
