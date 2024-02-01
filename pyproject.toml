@@ -12,3 +12,57 @@ dependencies = [
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "pytest-django",
+  "black",
+  "ruff",
+  "mypy",
+  "django-stubs[compatible-mypy]",
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["test_*.py", "*_test.py", "tests/*.py"]
+
+[tool.black]
+line-length = 79
+target-version = ["py311"]
+include = "\\.pyi?$"
+
+[tool.ruff]
+line-length = 79
+
+[tool.mypy]
+follow_imports = "silent"
+ignore_missing_imports = true
+
+# optionals
+no_implicit_optional = true
+
+# strictness
+allow_untyped_globals = false
+allow_redefinition = false
+implicit_reexport = false
+strict_equality = true
+
+# warnings
+warn_unused_ignores = true
+warn_no_return = true
+warn_return_any = true
+warn_redundant_casts = true
+warn_unreachable = true
+
+# error output
+show_column_numbers = true
+show_error_context = true
+show_error_codes = true
+pretty = true
+color_output = true
+error_summary = true
+plugins = ["mypy_django_plugin.main"]
+
+[tool.django-stubs]
+django_settings_module = "config.settings"
