@@ -7,4 +7,4 @@ cd /app/
 PIP_BIN=/app/venv/bin/pip
 
 $PIP_BIN manage.py migrate --noinput
-$PIP_BIN createsuperuser --email $SUPERUSER_EMAIL --noinput || true
+$PIP_BIN manage.py createsuperuser --email $SUPERUSER_EMAIL --noinput || true
