@@ -9,7 +9,6 @@ services:
       - PORT=8000
       - POSTGRES_HOST=db
       - DJANGO_DEBUG=False
-    command: sh -c "chmod +x /app/migrate.sh && /app/migrate.sh && /opt/venv/bin/gunicorn -c python:config.gunicorn config.wsgi"
     ports:
       - "8000:8000"
     volumes:

@@ -69,11 +69,17 @@ This will create a postgresql database that's running in the background for you.
 docker compose down
 ```
 
-### Run Docker locally
+### Run App locally with Docker
 
 Run the following command to start the Django server:
 ```bash
 docker compose up -d
+```
+
+Manually apply migrations:
+
+```bash
+docker compose exec -it djangoapp /app/migrate.sh
 ```
 
 And go to the following URL to see the Django project running:

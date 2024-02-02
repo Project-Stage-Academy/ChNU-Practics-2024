@@ -9,9 +9,12 @@ sleep 5
 
 PYTHON_BIN=/opt/venv/bin/python
 
-$PYTHON_BIN src/manage.py collectstatic --noinput
+# if not files in /var/www/static/* then collectstatic
 
-$PYTHON_BIN src/manage.py flush --noinput
-$PYTHON_BIN src/manage.py makemigrations --noinput
+if [ ! "$(ls -A /var/www/static/)" ]; then
+    echo "Collecting static files"
+    $PYTHON_BIN src/manage.py collectstatic --noinput
+fi
+
 $PYTHON_BIN src/manage.py migrate --noinput
 $PYTHON_BIN src/manage.py createsuperuser --email $SUPERUSER_EMAIL --noinput || true
