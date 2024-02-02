@@ -1,14 +1,15 @@
 import os
 from pathlib import Path
+from distutils.util import strtobool
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
-DEBUG = os.environ.get("DJANGO_DEBUG", "False") == "True"
+DEBUG = bool(strtobool(os.getenv("DJANGO_DEBUG", "false")))
 
-allowed_hosts = os.getenv("DJANGO_ALLOWED_HOSTS", ".localhost,127.0.0.1,[::1]")
-ALLOWED_HOSTS = list(map(str.strip, allowed_hosts.split(",")))
+allowed_hosts = os.getenv("DJANGO_ALLOWED_HOSTS", ".localhost 127.0.0.1 [::1]")
+ALLOWED_HOSTS = list(map(str.strip, allowed_hosts.split(" ")))
 
 # Application definition
 
@@ -63,22 +64,22 @@ DATABASES = {
     }
 }
 
-DB_USERNAME = os.environ.get("POSTGRES_USER")
-DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
-DB_HOST = os.environ.get("POSTGRES_HOST")
-DB_PORT = os.environ.get("POSTGRES_PORT")
-DB_NAME = os.environ.get("POSTGRES_DB")
-IS_DB_AVAIL = all([DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME])
+db_username = os.environ.get("POSTGRES_USER")
+db_password = os.environ.get("POSTGRES_PASSWORD")
+db_host = os.environ.get("POSTGRES_HOST")
+db_port = os.environ.get("POSTGRES_PORT")
+db_name = os.environ.get("POSTGRES_DB")
+is_avail_db = all([db_username, db_password, db_host, db_port, db_name])
 
-if IS_DB_AVAIL:
+if is_avail_db:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
-            "NAME": DB_NAME,
-            "USER": DB_USERNAME,
-            "PASSWORD": DB_PASSWORD,
-            "HOST": DB_HOST,
-            "PORT": DB_PORT,
+            "NAME": db_name,
+            "USER": db_username,
+            "PASSWORD": db_password,
+            "HOST": db_host,
+            "PORT": db_port,
         }
     }
 
