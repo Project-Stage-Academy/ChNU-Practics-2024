@@ -1,15 +1,60 @@
 version: "3.9"
 
 services:
-  backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: chnu-practics-2024:v1
+  djangoapp:
+    build: .
+    env_file:
+      - .env
     environment:
-      - PORT=8080
+      - PORT=8000
+      - POSTGRES_HOST=db
+      - DJANGO_DEBUG=False
+    command: sh -c "chmod +x /app/migrate.sh && /app/migrate.sh && /opt/venv/bin/gunicorn -c python:config.gunicorn config.wsgi"
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - static_volume:/var/www/static
+    networks:
+      - db_network
+      - nginx_network
+    depends_on:
+      - postgres_db
+
+  postgres_db:
+    container_name: db
+    image: postgres
+    restart: always
     env_file:
       - .env
     ports:
-      - "8080:8080"
-    command: sh -c "/app/migrate.sh && /app/entrypoint.sh"
+      - "5432:5432"
+    expose:
+      - 5432
+    networks:
+      - db_network
+    volumes:
+      - db_volume:/var/lib/lib/postgresql/data
+
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - static_volume:/var/www/static/
+    ports:
+      - "80:80"
+    networks:
+      - nginx_network
+    depends_on:
+      - djangoapp
+
+networks:
+  nginx_network:
+    driver: bridge
+  db_network:
+    driver: bridge
+
+volumes:
+  db_volume:
+  static_volume:

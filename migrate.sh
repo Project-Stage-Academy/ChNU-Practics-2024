@@ -1,10 +1,17 @@
-#!/usr/bin/bash
+#!/usr/bin/sh
+SUPERUSER_EMAIL=${DJANGO_SUPERUSER_EMAIL:-"admin@example.com"}
 
-SUPERUSER_EMAIL=${DJANGO_SUPERUSER_EMAIL:-"hello@tkachuk.email"}
+set -e
 
 cd /app/
 
-PIP_BIN=/app/venv/bin/pip
+sleep 5
 
-$PIP_BIN manage.py migrate --noinput
-$PIP_BIN manage.py createsuperuser --email $SUPERUSER_EMAIL --noinput || true
+PYTHON_BIN=/opt/venv/bin/python
+
+$PYTHON_BIN src/manage.py collectstatic --noinput
+
+$PYTHON_BIN src/manage.py flush --noinput
+$PYTHON_BIN src/manage.py makemigrations --noinput
+$PYTHON_BIN src/manage.py migrate --noinput
+$PYTHON_BIN src/manage.py createsuperuser --email $SUPERUSER_EMAIL --noinput || true

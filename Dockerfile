@@ -1,15 +1,14 @@
 FROM python:3.11-slim
 
-COPY . /app
+ENV PYTHONUNBUFFERED 1 
+
 WORKDIR /app
+COPY . .
 
-RUN python3 -m venv /opt/venv
+RUN python3 -m venv /opt/venv && \
+  /opt/venv/bin/pip install --upgrade pip && \
+  /opt/venv/bin/pip install -e .
 
-RUN /opt/venv/bin/pip install --upgrade pip && \
-    /opt/venv/bin/pip install -e . && \
-    chmod +x migrate.sh && \
-    chmod +x entrypoint.sh
+EXPOSE 8000
 
-EXPOSE 8080
-
-CMD ["/app/entrypoint.sh"]
+CMD ["/opt/venv/bin/gunicorn", "-c", "python:config.gunicorn", "config.wsgi"]
