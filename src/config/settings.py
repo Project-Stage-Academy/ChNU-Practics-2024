@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",  # Django REST Framework
+    "apps.api.v1",  # API v1
 ]
 
 MIDDLEWARE = [
@@ -140,6 +141,6 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.BrowsableAPIRenderer",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.AllowAny", # FIXME: Change this to only allow authenticated users, when implementing authentication
-    ]
+        "rest_framework.permissions.AllowAny",  # FIXME: Change this to only allow authenticated users, when implementing authentication
+    ],
 }
