@@ -1,0 +1,29 @@
+name: Run Tests
+
+on:
+  pull_request:
+    branches: [dev]
+    paths:
+      - 'src/**'
+    workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      
+      - name: Set up python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev]
+
+      - name: Run tests
+        working-directory: ./src
+        run: pytest -vv
