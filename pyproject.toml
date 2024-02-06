@@ -1,0 +1,64 @@
+[project]
+name = "ChNu-Practics-2024"
+description = "Empowering Innovation: Bridging Startups and Investors for Ukraine's Economic Growth"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+  "django>=4.2,<5.0",
+  "djangorestframework",
+  "django-cors-headers",
+  "psycopg2-binary",
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project.optional-dependencies]
+development = [
+  "black",
+  "ruff",
+  "mypy",
+  "django-stubs[compatible-mypy]"
+]
+
+[tool.black]
+line-length = 119
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = 'migrations/*'
+
+[tool.ruff]
+line-length = 119
+
+[tool.mypy]
+follow_imports = "silent"
+ignore_missing_imports = true
+
+# optionals
+no_implicit_optional = true
+
+# strictness
+allow_untyped_globals = false
+allow_redefinition = false
+implicit_reexport = false
+strict_equality = true
+
+# warnings
+warn_unused_ignores = true
+warn_no_return = true
+warn_return_any = true
+warn_redundant_casts = true
+warn_unreachable = true
+
+# error output
+show_column_numbers = true
+show_error_context = true
+show_error_codes = true
+pretty = true
+color_output = true
+error_summary = true
+plugins = ["mypy_django_plugin.main"]
+
+[tool.django-stubs]
+django_settings_module = "config.settings"
