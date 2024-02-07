@@ -1,7 +1,9 @@
 from distutils.util import strtobool
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
+
 
 load_dotenv()
 
@@ -28,6 +30,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "apps.users",
     "apps.api.v1",
 ]
 
