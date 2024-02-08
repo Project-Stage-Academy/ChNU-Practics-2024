@@ -9,6 +9,8 @@ dependencies = [
   "django-cors-headers",
   "psycopg2-binary",
   "djangorestframework-simplejwt",
+  "python-dotenv",
+  "gunicorn",
 ]
 
 [build-system]
@@ -16,21 +18,45 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project.optional-dependencies]
-development = [
-  "black",
-  "ruff",
-  "mypy",
-  "django-stubs[compatible-mypy]"
-]
+development = ["pre-commit", "ruff", "mypy", "django-stubs[compatible-mypy]"]
 
 [tool.black]
-line-length = 119
+line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
 extend-exclude = 'migrations/*'
 
 [tool.ruff]
-line-length = 119
+src = ["src"]
+line-length = 88
+ignore = [
+  "E721", # Do not compare types, use `isinstance()`
+  # pydocstyle ignore
+  "D100", # Missing docstring in public module
+  "D101", # Missing docstring in public class
+  "D102", # Missing docstring in public method
+  "D103", # Missing docstring in public function
+  "D104", # Missing docstring in public package
+  "D105", # Missing docstring in magic method
+  "D106", # Missing docstring in public nested class
+  "D107", # Missing docstring in `__init__`
+  "D209", # [*] Multi-line docstring closing quotes should be on a separate line
+  "D205", # 1 blank line required between summary line and description
+  "D400", # First line should end with a period
+  "D401", # First line of docstring should be in imperative mood
+  "D402", # First line should not be the function's signature
+  "D404", # First word of the docstring should not be "This"
+  "D415", # First line should end with a period, question mark, or exclamation point
+  "E501", # Line too long
+]
+select = ["B", "D", "E", "F", "I", "N", "Q", "W"]
+
+[tool.ruff.lint.isort]
+force-single-line = true
+combine-as-imports = true
+force-sort-within-sections = true
+order-by-type = false
+lines-after-imports = 2
 
 [tool.mypy]
 follow_imports = "silent"

@@ -3,14 +3,19 @@ from distutils.util import strtobool
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-#7wz0b5@q6#z!f@2d8v#z5!q2&l^@3)3j8g5y5fz=^3j4&@7^8")
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
-DEBUG = bool(strtobool(os.environ.get("DEBUG", "True")))
+DEBUG = bool(strtobool(os.environ.get("DEBUG", "true")))
 
-allowed_hosts = os.environ.get("ALLOWED_HOSTS", ".localhost,127.0.0.1,[::1]").split(",")
-ALLOWED_HOSTS = [host.strip() for host in allowed_hosts]
+allowed_hosts = os.environ.get("ALLOWED_HOSTS", ".localhost 127.0.0.1 [::1]")
+ALLOWED_HOSTS = list(map(str.strip, allowed_hosts.split(" ")))
 
 CORS_ORIGIN_ALLOW_ALL = False
 
@@ -60,6 +65,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "apps.users",
     "apps.api.v1",
     "rest_framework_simplejwt",
 ]
@@ -102,11 +108,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("DB_NAME"),
-        "USER": os.environ.get("DB_USER"),
-        "PASSWORD": os.environ.get("DB_PASSWORD"),
-        "HOST": os.environ.get("DB_HOST"),
-        "PORT": os.environ.get("DB_PORT"),
+        "NAME": os.environ.get("POSTGRES_DB"),
+        "USER": os.environ.get("POSTGRES_USER"),
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
+        "HOST": os.environ.get("POSTGRES_HOST"),
+        "PORT": os.environ.get("POSTGRES_PORT"),
     }
 }
 
@@ -127,8 +133,12 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
+    {
+        "NAME": "apps.auth.validators.CustomPasswordValidator",
+    },
 ]
 
+# AUTH_USER_MODEL = "users.User"
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/

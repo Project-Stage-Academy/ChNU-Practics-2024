@@ -83,5 +83,124 @@ We are committed to delivering a platform that is not just a marketplace for ide
 - Each user story can be broken down into smaller tasks and developed in sprints.
 - Regular feedback from both user groups (startups and investors) should be incorporated.
 
+### Development setup
 
+This weill ensure your Django project is ready to be used and developed locally.
 
+As a first step, you'll need to clone the repository to your local machine:
+
+```bash
+$ git clone git@github.com:Project-Stage-Academy/ChNU-Practics-2024.git
+```
+After you've cloned the repository, you'll need to create and activate a git-ignored virtual env (venv or .venv), e.g.:
+
+```bash
+$ python -m venv .venv
+$ source .venv/bin/activate # or .venv\Scripts\activate on Windows
+```
+
+Then, you'll need to install the dependencies, we using pyproject.toml for this:
+
+```bash
+$ pip install pip --upgrade
+$ pip install -e .[development] # Install dev dependencies
+```
+
+Next step is creating .env file in root directory to properly docker create db
+
+```bash
+$ cp .env.example .env # or copy .env.example .env on Windows
+```
+
+Make sure you create `.env` and fill it the following variables:
+
+```env
+SECRET_KEY=mysecretdummy # Django Secret Key
+
+POSTGRES_DB=mydb # Postgres Database Name
+POSTGRES_USER=myuser # Postgres User
+POSTGRES_PASSWORD=mysecretpassword # Postgres Password
+POSTGRES_HOST=postgres # Postgres host, if you run server not in docker, it can be change to localhost
+POSTGRES_PORT=5432 # Postgres port
+```
+
+Once you have the above `.env` file, run the following command to build and run container:
+
+```bash
+$ docker compose up --build # Add flag -d to run in background
+```
+
+This will create a postgresql database and djangos those are running in the background. To bring this down just run:
+
+```bash
+# or Ctrl+C if you are not running command in backround
+$ docker compose down
+```
+
+> To run only database use this: `docker compose up postgres -d` and change in `.env` `POSTGRES_HOST` to `localhost`
+
+**Applying migrations:**
+
+```bash
+$ docker compose exec -it app /opt/venv/bin/python src/manage.py makemigrations --noinput
+
+$ docker compose exec -it app /opt/venv/bin/python src/manage.py migrate --noinput
+```
+
+### Contributing
+
+**Install pre-commit**
+
+```bash
+$ pre-commit install # run it in virtualenv
+```
+
+**Create a New Branch**
+
+Before making any changes, it's a good practice to create a new branch for your feature or fix. This keeps your changes isolated and makes it easier to manage and review.
+
+```bash
+$ git checkout develop
+$ git checkout -b {id-issue}-new-feature-name # replace {id-issue} with id of issue, e.x. 4-JWT_Authentication, 25-setup-docker
+```
+**Make Changes and Test**
+
+Make the necessary changes to implement your new feature or fix the issue. Ensure that your changes do not break existing functionality, and test thoroughly.
+
+**Commit Changes**
+
+Once you are satisfied with your changes, commit them with a clear and concise commit message.
+
+```bash
+$ git add .
+$ git commit -m "Implementing new feature or fixing issue"
+```
+
+**Push Changes to Repository**
+
+```bash
+$ git push -u origin {id-issue}-new-feature-name # replace {id-issue} with id of issue, e.x. 4-JWT_Authentication, 25-setup-docker
+```
+
+**Create a Pull Request**
+
+Go to the GitHub repository, and you should see a prompt to create a new pull request. Click on it, and GitHub will guide you through the process of creating a pull request. Select the branch you just pushed, provide a descriptive title and comment, and create the pull request. 
+
+Or using [github cli](https://cli.github.com/):
+
+```bash
+$ gh pr create --base develop
+```
+
+**Merge Pull Request**
+
+Once your pull request has been approved and passes all checks, you can merge it into the develop branch.
+
+**Cleanup**
+
+After merging, you can delete the feature branch locally.
+
+```bash
+$ git checkout develop
+$ git branch -d {id-issue}-new-feature-name # replace {id-issue} with id of issue, e.x. 4-JWT_Authentication, 25-setup-docker
+```
