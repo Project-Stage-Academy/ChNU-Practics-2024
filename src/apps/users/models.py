@@ -41,17 +41,17 @@ class User(AbstractBaseUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     role = models.CharField("Role", max_length=8, choices=UserRole.choices)
     username = models.CharField(
-        "Username", max_length=15, unique=True, blank=False, null=False
+        "Username", max_length=64, unique=True, blank=False, null=False
     )
-    password = models.CharField("Password", max_length=15, blank=False, null=False)
+    password = models.CharField("Password", max_length=94, blank=False, null=False)
     email = models.EmailField(
-        "Email Address", max_length=20, unique=True, blank=False, null=False
+        "Email Address", max_length=320, unique=True, blank=False, null=False
     )
 
     first_name = models.CharField("First Name", max_length=15, blank=True, null=True)
     last_name = models.CharField("Last Name", max_length=15, blank=True, null=True)
 
-    objects = CustomUserManager()
+    objects: CustomUserManager = CustomUserManager()
 
     class Meta:
         verbose_name_plural = "users"
