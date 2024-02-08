@@ -149,11 +149,18 @@ $ docker compose exec -it app /opt/venv/bin/python src/manage.py migrate --noinp
 
 ### Contributing
 
+**Install pre-commit**
+
+```bash
+$ pre-commit install # run it in virtualenv
+```
+
 **Create a New Branch**
 
 Before making any changes, it's a good practice to create a new branch for your feature or fix. This keeps your changes isolated and makes it easier to manage and review.
 
 ```bash
+$ git checkout develop
 $ git checkout -b {id-issue}-new-feature-name # replace {id-issue} with id of issue, e.x. 4-JWT_Authentication, 25-setup-docker
 ```
 **Make Changes and Test**
