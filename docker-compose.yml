@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    env_file:
+      - .env
+    environment:
+      - PORT=8000
+      - DEBUG=false
+    ports:
+      - "8000:8000"
+    networks:
+      - db_network
+    volumes:
+      - .:/app
+    depends_on:
+      - postgres_db
+
+  postgres_db:
+    container_name: postgres
+    image: postgres
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    networks:
+      - db_network
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+networks:
+  db_network:
+    driver: bridge
+
+volumes:
+  pgdata:
