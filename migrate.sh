@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-POSTGRES_HOST=${POSTGRES_HOST:-"postgres"}
+POSTGRES_HOST=${POSTGRES_HOST:-"localhost"}
 POSTGRES_PORT=${POSTGRES_PORT:-"5432"}
 
 cd /app/
