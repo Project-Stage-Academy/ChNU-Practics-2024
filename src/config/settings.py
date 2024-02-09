@@ -65,9 +65,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-    "apps.users",
-    "apps.api.v1",
     "rest_framework_simplejwt",
+    "apps.users",
+    "apps.authentication",
+    "apps.api.v1",
 ]
 
 MIDDLEWARE = [
@@ -134,7 +135,7 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
     {
-        "NAME": "apps.auth.validators.CustomPasswordValidator",
+        "NAME": "apps.authentication.validators.CustomPasswordValidator",
     },
 ]
 
