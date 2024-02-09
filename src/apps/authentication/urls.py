@@ -3,6 +3,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.views import TokenVerifyView
 
+from .views import LoginView
 from .views import RegisterView
 
 
@@ -11,4 +12,6 @@ urlpatterns = [
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("token/verify/", TokenVerifyView.as_view(), name="token_verify"),
     path(r"register/", RegisterView.as_view(), name="register"),
+    path(r"login/", LoginView.as_view(), name="login")
+
 ]

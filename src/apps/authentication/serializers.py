@@ -1,6 +1,7 @@
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.users.models import User
 from apps.users.models import UserRole
@@ -55,3 +56,33 @@ class RegisterSerializer(serializers.ModelSerializer):
         if role and role != UserRole.ADMIN:
             user.role = role
             user.save()
+
+
+class UserLoginSerializer(serializers.Serializer):
+    id = serializers.UUIDField(read_only=True)
+    email = serializers.EmailField()
+    username = serializers.CharField(read_only=True)
+    password = serializers.CharField(write_only=True)
+    access_token = serializers.CharField(read_only=True)
+
+    def validate(self, attrs):
+        email = attrs.get("email")
+        password = attrs.get("password")
+
+        if email and password:
+            user = User.objects.get(email=email)
+            if not user:
+                raise serializers.ValidationError("User not found")
+
+            if not user.check_password(password):
+                raise serializers.ValidationError("Incorrect password")
+
+            refresh_token = RefreshToken.for_user(user)
+
+            attrs["access_token"] = str(refresh_token.access_token)
+            attrs["id"] = user.id
+            attrs["username"] = user.username
+
+            return attrs
+        else:
+            raise serializers.ValidationError("Must include 'email' and 'password'")
