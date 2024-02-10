@@ -1,14 +1,9 @@
 from django.contrib.auth.password_validation import validate_password
-from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
-from rest_framework.reverse import reverse
-from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.users.models import User
 from apps.users.models import UserRole
-
-from .utils import send_email
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -39,14 +34,6 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         return user
 
-    def send_confirmation_email(self, user):
-        link = self.get_verification_link(user)
-        send_email(
-            "Verify your email address",
-            f"Click the link to verify your email address: {link}",
-            [user.email],
-        )
-
     def validate_password(self, value):
         try:
             validate_password(value)
@@ -68,10 +55,3 @@ class RegisterSerializer(serializers.ModelSerializer):
         if role and role != UserRole.ADMIN:
             user.role = role
             user.save()
-
-    def get_verification_link(self, user):
-        current_site = get_current_site(self.context["request"])
-        verify_link = reverse("verify-email")
-        token = RefreshToken.for_user(user)
-        access_token = str(token.access_token)
-        return f"http://{current_site}{verify_link}?token={access_token}"
