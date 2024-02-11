@@ -55,3 +55,46 @@ class RegisterSerializer(serializers.ModelSerializer):
         if role and role != UserRole.ADMIN:
             user.role = role
             user.save()
+
+
+class PasswordRecoverySerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+
+        attrs["user"] = User.objects.get(email=attrs["email"])
+
+        return attrs
+
+    def validate_email(self, value):
+        try:
+            User.objects.get(email=value)
+        except User.DoesNotExist as exc:
+            raise serializers.ValidationError(
+                "User with this email does not exist."
+            ) from exc
+
+        return value
+
+
+class PasswordResetSerializer(serializers.Serializer):
+    new_password = serializers.CharField(write_only=True, required=True)
+    new_password1 = serializers.CharField(write_only=True, required=True)
+
+    def validate_new_password(self, value):
+        try:
+            validate_password(value)
+        except ValidationError as exc:
+            raise serializers.ValidationError(exc.messages) from exc
+
+        return value
+
+    def validate_new_password1(self, value):
+        data = self.get_initial()
+        new_password = data.get("new_password")
+
+        if new_password != value:
+            raise serializers.ValidationError("Passwords do not match.")
+
+        return value

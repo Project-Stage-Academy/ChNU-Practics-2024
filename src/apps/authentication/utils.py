@@ -3,6 +3,8 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
 from django.urls import reverse
 import jwt
+from rest_framework import status
+from rest_framework.exceptions import APIException
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.users.models import User
@@ -34,8 +36,36 @@ def send_confirmation_email(request, user):
     )
 
 
+def send_password_recovery_email(request, user):
+    reset_password_path = reverse("password-reset")
+    link = get_verification_link(request, user, reset_password_path)
+    send_email(
+        "Password recovery",
+        f"Click the link to recover your password: {link}",
+        [user.email],
+    )
+
+
 def get_user_from_token(token):
     payload = jwt.decode(
         token, settings.SECRET_KEY, algorithms=settings.SIMPLE_JWT["ALGORITHM"]
     )
     return User.objects.get(id=payload["user_id"])
+
+
+def decode_token(token):
+    try:
+        user = get_user_from_token(token)
+        return user
+    except jwt.ExpiredSignatureError:
+        raise APIException(
+            detail="Token expired", code=status.HTTP_400_BAD_REQUEST
+        ) from None
+    except jwt.DecodeError:
+        raise APIException(
+            detail="Token invalid", code=status.HTTP_400_BAD_REQUEST
+        ) from None
+    except User.DoesNotExist:
+        raise APIException(
+            detail="User not found", code=status.HTTP_400_BAD_REQUEST
+        ) from None
