@@ -3,17 +3,15 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
+from rest_framework import permissions
 
-from .serializers import RegisterSerializer
+from .serializers import RegisterSerializer, LogoutSerializer
 from .utils import get_user_from_token
 from .utils import send_confirmation_email
 
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
-
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         user = serializer.save()
@@ -44,3 +42,16 @@ class VerifyEmailView(generics.GenericAPIView):
     def verify_user_email(self, user):
         user.is_verified = True
         user.save()
+
+
+class LogoutApiView(generics.GenericAPIView):
+    serializer_class = LogoutSerializer
+
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
