@@ -11,39 +11,20 @@ from apps.users.models import User
 
 
 def send_email(subject: str, message: str, recipient_list: list[str]) -> None:
-    if (
-        settings.EMAIL_HOST_USER
-        and settings.EMAIL_HOST_PASSWORD
-        and len(recipient_list) > 0
-    ):
+    if all([settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD, recipient_list]):
         send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list)
 
 
-def get_verification_link(request, user, verify_path: str) -> str:
+def generate_verification_link(request, user, path_name: str) -> str:
     domain = get_current_site(request).domain
     token = RefreshToken.for_user(user)
     access_token = str(token.access_token)
-    return f"http://{domain}{verify_path}?token={access_token}"
+    return f"http://{domain}{reverse(path_name)}?token={access_token}"
 
 
-def send_confirmation_email(request, user):
-    verify_email_path = reverse("verify-email")
-    link = get_verification_link(request, user, verify_email_path)
-    send_email(
-        "Verify your email address",
-        f"Click the link to verify your email address: {link}",
-        [user.email],
-    )
-
-
-def send_password_recovery_email(request, user):
-    reset_password_path = reverse("password-reset")
-    link = get_verification_link(request, user, reset_password_path)
-    send_email(
-        "Password recovery",
-        f"Click the link to recover your password: {link}",
-        [user.email],
-    )
+def send_user_email(request, user, subject: str, path_name: str) -> None:
+    link = generate_verification_link(request, user, path_name)
+    send_email(subject, f"Click the link to {subject.lower()}: {link}", [user.email])
 
 
 def get_user_from_token(token):
@@ -57,15 +38,7 @@ def decode_token(token):
     try:
         user = get_user_from_token(token)
         return user
-    except jwt.ExpiredSignatureError:
+    except (jwt.ExpiredSignatureError, jwt.DecodeError, User.DoesNotExist):
         raise APIException(
-            detail="Token expired", code=status.HTTP_400_BAD_REQUEST
-        ) from None
-    except jwt.DecodeError:
-        raise APIException(
-            detail="Token invalid", code=status.HTTP_400_BAD_REQUEST
-        ) from None
-    except User.DoesNotExist:
-        raise APIException(
-            detail="User not found", code=status.HTTP_400_BAD_REQUEST
+            detail="Token invalid or expired", code=status.HTTP_400_BAD_REQUEST
         ) from None

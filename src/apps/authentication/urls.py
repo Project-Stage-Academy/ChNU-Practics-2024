@@ -7,7 +7,7 @@ from rest_framework_simplejwt.views import (
 
 from .views import (
     LoginView,
-    LogoutApiView,
+    LogoutView,
     PasswordRecoveyView,
     PasswordResetView,
     RegisterView,
@@ -16,13 +16,13 @@ from .views import (
 
 
 urlpatterns = [
-    path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("token/verify/", TokenVerifyView.as_view(), name="token_verify"),
+    path(r"token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path(r"token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path(r"token/verify/", TokenVerifyView.as_view(), name="token_verify"),
     path(r"register/", RegisterView.as_view(), name="register"),
     path(r"email/verify/", VerifyEmailView.as_view(), name="verify-email"),
-    path("logout/", LogoutApiView.as_view(), name="logout"),
     path(r"login/", LoginView.as_view(), name="login"),
+    path(r"logout/", LogoutView.as_view(), name="logout"),
     path(
         r"password/recovery/", PasswordRecoveyView.as_view(), name="password-recovery"
     ),

@@ -1,13 +1,14 @@
-from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
+from django.contrib.auth import authenticate
 from rest_framework import serializers
-from rest_framework_simplejwt.exceptions import TokenError
-from rest_framework_simplejwt.tokens import RefreshToken
 
-from apps.users.models import User, UserRole
+from apps.users.models import User
+
+from .mixins import CreateUserMixin, TokenHandlerMixin, ValidatePasswordMixin
 
 
-class RegisterSerializer(serializers.ModelSerializer):
+class RegisterSerializer(
+    serializers.ModelSerializer, ValidatePasswordMixin, CreateUserMixin
+):
     password1 = serializers.CharField(write_only=True, required=True)
 
     class Meta:
@@ -23,89 +24,49 @@ class RegisterSerializer(serializers.ModelSerializer):
         ]
         extra_kwargs = {"password": {"write_only": True}}
 
+    def create(self, vaslidated_data):
+        return self.create_user(vaslidated_data)
+
     def validate(self, attrs):
-        return super().validate(attrs)
-
-    def create(self, validated_data):
-        validated_data.pop("password1")
-        user = User.objects.create_user(**validated_data)
-
-        role = validated_data.pop("role", None)
-        self.set_user_role(user, role)
-
-        return user
-
-    def validate_password(self, value):
-        try:
-            validate_password(value)
-        except ValidationError as exc:
-            raise serializers.ValidationError(exc.messages) from exc
-
-        return value
-
-    def validate_password1(self, value):
-        data = self.get_initial()
-        password = data.get("password")
-
-        if password != value:
-            raise serializers.ValidationError("Passwords do not match.")
-
-        return value
-
-    def set_user_role(self, user, role):
-        if role and role != UserRole.ADMIN:
-            user.role = role
-            user.save()
+        attrs = super().validate(attrs)
+        self.validate_password_match(attrs["password"], attrs["password1"])
+        return attrs
 
 
-class LogoutSerializer(serializers.Serializer):
+class LogoutSerializer(serializers.Serializer, TokenHandlerMixin):
     refresh = serializers.CharField()
-
-    default_error_messages = {"bad_token": "Token is invalid."}
 
     def validate(self, attrs):
         self.token = attrs.get("refresh")
+        return super().validate(attrs)
 
-        return attrs
-
-    def save(self, **kwargs):
-        try:
-            RefreshToken(self.token).blacklist()
-
-        except TokenError:
-            self.fail("bad_token")
+    def save(self):
+        self.blacklist_token(self.token)
 
 
-class UserLoginSerializer(serializers.Serializer):
-    id = serializers.UUIDField(read_only=True)
+class LoginSerializer(serializers.Serializer, TokenHandlerMixin):
     email = serializers.EmailField()
-    username = serializers.CharField(read_only=True)
-    password = serializers.CharField(write_only=True)
-    refresh = serializers.CharField(read_only=True)
-    access_token = serializers.CharField(read_only=True)
+    password = serializers.CharField(write_only=True, required=True)
 
     def validate(self, attrs):
         email = attrs.get("email")
         password = attrs.get("password")
 
         if email and password:
-            user = User.objects.get(email=email)
-            if not user:
-                raise serializers.ValidationError("User not found")
+            user = authenticate(
+                request=self.context.get("request"), email=email, password=password
+            )
 
-            if not user.check_password(password):
-                raise serializers.ValidationError("Incorrect password")
-
-            refresh_token = RefreshToken.for_user(user)
-
-            attrs["refresh"] = str(refresh_token)
-            attrs["access_token"] = str(refresh_token.access_token)
-            attrs["id"] = user.id
-            attrs["username"] = user.username
-
-            return attrs
+            if user:
+                attrs["user"] = user
+            else:
+                raise serializers.ValidationError(
+                    "Unable to log in with provided credentials."
+                )
         else:
-            raise serializers.ValidationError("Must include 'email' and 'password'")
+            raise serializers.ValidationError("Must include 'email' and 'password'.")
+
+        return super().validate(attrs)
 
 
 class PasswordRecoverySerializer(serializers.Serializer):
@@ -114,38 +75,20 @@ class PasswordRecoverySerializer(serializers.Serializer):
     def validate(self, attrs):
         attrs = super().validate(attrs)
 
-        attrs["user"] = User.objects.get(email=attrs["email"])
-
-        return attrs
-
-    def validate_email(self, value):
         try:
-            User.objects.get(email=value)
+            attrs["user"] = User.objects.get(email=attrs["email"])
         except User.DoesNotExist as exc:
             raise serializers.ValidationError(
                 "User with this email does not exist."
             ) from exc
+        return attrs
 
-        return value
 
-
-class PasswordResetSerializer(serializers.Serializer):
+class PasswordResetSerializer(serializers.Serializer, ValidatePasswordMixin):
     new_password = serializers.CharField(write_only=True, required=True)
     new_password1 = serializers.CharField(write_only=True, required=True)
 
-    def validate_new_password(self, value):
-        try:
-            validate_password(value)
-        except ValidationError as exc:
-            raise serializers.ValidationError(exc.messages) from exc
-
-        return value
-
-    def validate_new_password1(self, value):
-        data = self.get_initial()
-        new_password = data.get("new_password")
-
-        if new_password != value:
-            raise serializers.ValidationError("Passwords do not match.")
-
-        return value
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        self.validate_password_match(attrs["new_password"], attrs["new_password1"])
+        return attrs
