@@ -5,6 +5,7 @@ from django.urls import reverse
 import jwt
 from rest_framework import status
 from rest_framework.exceptions import APIException
+
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.users.models import User
@@ -35,7 +36,6 @@ def send_confirmation_email(request, user):
         [user.email],
     )
 
-
 def send_password_recovery_email(request, user):
     reset_password_path = reverse("password-reset")
     link = get_verification_link(request, user, reset_password_path)
@@ -51,6 +51,7 @@ def get_user_from_token(token):
         token, settings.SECRET_KEY, algorithms=settings.SIMPLE_JWT["ALGORITHM"]
     )
     return User.objects.get(id=payload["user_id"])
+
 
 
 def decode_token(token):
