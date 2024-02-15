@@ -1,19 +1,16 @@
-from django.contrib.auth import authenticate
-from django.contrib.auth import login
-from rest_framework import generics
-from rest_framework import permissions
-from rest_framework import status
+from django.contrib.auth import authenticate, login
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .serializers import LogoutSerializer
-from .serializers import PasswordRecoverySerializer
-from .serializers import PasswordResetSerializer
-from .serializers import RegisterSerializer
-from .serializers import UserLoginSerializer
-from .utils import decode_token
-from .utils import send_confirmation_email
-from .utils import send_password_recovery_email
+from .serializers import (
+    LogoutSerializer,
+    PasswordRecoverySerializer,
+    PasswordResetSerializer,
+    RegisterSerializer,
+    UserLoginSerializer,
+)
+from .utils import decode_token, send_confirmation_email, send_password_recovery_email
 
 
 class RegisterView(generics.CreateAPIView):

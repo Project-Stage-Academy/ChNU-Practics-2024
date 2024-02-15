@@ -1,15 +1,18 @@
 from django.urls import path
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.views import TokenRefreshView
-from rest_framework_simplejwt.views import TokenVerifyView
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView,
+)
 
-from .views import LoginView
-from .views import PasswordRecoveyView
-from .views import PasswordResetView
-
-from .views import RegisterView
-from .views import VerifyEmailView
-from .views import RegisterView, LogoutApiView
+from .views import (
+    LoginView,
+    LogoutApiView,
+    PasswordRecoveyView,
+    PasswordResetView,
+    RegisterView,
+    VerifyEmailView,
+)
 
 
 urlpatterns = [

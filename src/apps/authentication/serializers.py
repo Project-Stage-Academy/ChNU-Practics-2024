@@ -4,8 +4,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from apps.users.models import User
-from apps.users.models import UserRole
+from apps.users.models import User, UserRole
 
 
 class RegisterSerializer(serializers.ModelSerializer):

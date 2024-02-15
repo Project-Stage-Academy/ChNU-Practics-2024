@@ -52,7 +52,6 @@ ignore = [
 select = ["B", "D", "E", "F", "I", "N", "Q", "W"]
 
 [tool.ruff.lint.isort]
-force-single-line = true
 combine-as-imports = true
 force-sort-within-sections = true
 order-by-type = false
