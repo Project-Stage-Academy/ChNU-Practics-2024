@@ -1,12 +1,18 @@
+from django.contrib.auth import authenticate
+from django.contrib.auth import login
 import jwt
+
 from rest_framework import generics
 from rest_framework import status
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .serializers import PasswordRecoverySerializer
 from .serializers import PasswordResetSerializer
 from .serializers import RegisterSerializer
+from .serializers import UserLoginSerializer
+
 from .utils import decode_token
 from .utils import send_confirmation_email
 from .utils import send_password_recovery_email
@@ -36,6 +42,29 @@ class VerifyEmailView(generics.GenericAPIView):
     def verify_user_email(self, user):
         user.is_verified = True
         user.save()
+
+
+class LoginView(APIView):
+    serializer_class = UserLoginSerializer
+
+    def post(self, request):
+        serializer = UserLoginSerializer(data=request.data)
+
+        if serializer.is_valid():
+            user = authenticate(request, email=serializer.validated_data["email"], password=serializer.validated_data["password"])
+
+            if user is not None:
+                login(request, user)
+
+                return Response({
+                    "id": serializer.validated_data["id"],
+                    "username": serializer.validated_data["username"],
+                    "access_token": serializer.validated_data["access_token"]
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": "Authentication failed"}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PasswordRecoveyView(generics.GenericAPIView):
