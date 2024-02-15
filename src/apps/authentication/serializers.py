@@ -1,8 +1,8 @@
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.users.models import User
 from apps.users.models import UserRole
@@ -65,7 +65,7 @@ class LogoutSerializer(serializers.Serializer):
     default_error_messages = {"bad_token": "Token is invalid."}
 
     def validate(self, attrs):
-        self.token = attrs("refresh")
+        self.token = attrs.get("refresh")
 
         return attrs
 
@@ -82,6 +82,7 @@ class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     username = serializers.CharField(read_only=True)
     password = serializers.CharField(write_only=True)
+    refresh = serializers.CharField(read_only=True)
     access_token = serializers.CharField(read_only=True)
 
     def validate(self, attrs):
@@ -98,6 +99,7 @@ class UserLoginSerializer(serializers.Serializer):
 
             refresh_token = RefreshToken.for_user(user)
 
+            attrs["refresh"] = str(refresh_token)
             attrs["access_token"] = str(refresh_token.access_token)
             attrs["id"] = user.id
             attrs["username"] = user.username
@@ -148,4 +150,3 @@ class PasswordResetSerializer(serializers.Serializer):
             raise serializers.ValidationError("Passwords do not match.")
 
         return value
-
