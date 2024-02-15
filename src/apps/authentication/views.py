@@ -6,11 +6,14 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
+from rest_framework import permissions
+
+from .serializers import RegisterSerializer, LogoutSerializer
+
 from rest_framework.views import APIView
 
 from .serializers import PasswordRecoverySerializer
 from .serializers import PasswordResetSerializer
-from .serializers import RegisterSerializer
 from .serializers import UserLoginSerializer
 
 from .utils import decode_token
@@ -21,7 +24,7 @@ from .utils import send_password_recovery_email
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
-    
+
     def perform_create(self, serializer):
         user = serializer.save()
         send_confirmation_email(self.request, user)
@@ -43,6 +46,18 @@ class VerifyEmailView(generics.GenericAPIView):
         user.is_verified = True
         user.save()
 
+
+class LogoutApiView(generics.GenericAPIView):
+    serializer_class = LogoutSerializer
+
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class LoginView(APIView):
     serializer_class = UserLoginSerializer

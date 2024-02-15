@@ -2,6 +2,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 
 from apps.users.models import User
 from apps.users.models import UserRole
@@ -56,6 +57,24 @@ class RegisterSerializer(serializers.ModelSerializer):
         if role and role != UserRole.ADMIN:
             user.role = role
             user.save()
+
+
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+
+    default_error_messages = {"bad_token": "Token is invalid."}
+
+    def validate(self, attrs):
+        self.token = attrs("refresh")
+
+        return attrs
+
+    def save(self, **kwargs):
+        try:
+            RefreshToken(self.token).blacklist()
+
+        except TokenError:
+            self.fail("bad_token")
 
 
 class UserLoginSerializer(serializers.Serializer):
