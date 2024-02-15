@@ -1,16 +1,16 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import login
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .serializers import (
+    LoginSerializer,
     LogoutSerializer,
     PasswordRecoverySerializer,
     PasswordResetSerializer,
     RegisterSerializer,
-    UserLoginSerializer,
 )
-from .utils import decode_token, send_confirmation_email, send_password_recovery_email
+from .utils import decode_token, send_user_email
 
 
 class RegisterView(generics.CreateAPIView):
@@ -18,7 +18,7 @@ class RegisterView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         user = serializer.save()
-        send_confirmation_email(self.request, user)
+        send_user_email(self.request, user, "Verify Email", "verify-email")
 
 
 class VerifyEmailView(generics.GenericAPIView):
@@ -37,13 +37,33 @@ class VerifyEmailView(generics.GenericAPIView):
         user.save()
 
 
-class LogoutApiView(generics.GenericAPIView):
+class LoginView(generics.GenericAPIView):
+    serializer_class = LoginSerializer
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.validated_data["user"]
+        login(request, user)
+
+        refresh = RefreshToken.for_user(user)
+        data = {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "role": user.role,
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class LogoutView(generics.GenericAPIView):
+    queryset = []
     serializer_class = LogoutSerializer
-
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get_queryset(self):
-        return None
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -51,34 +71,6 @@ class LogoutApiView(generics.GenericAPIView):
         serializer.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class LoginView(APIView):
-    serializer_class = UserLoginSerializer
-
-    def post(self, request):
-        serializer = UserLoginSerializer(data=request.data)
-
-        if serializer.is_valid():
-            user = authenticate(
-                request,
-                email=serializer.validated_data["email"],
-                password=serializer.validated_data["password"],
-            )
-
-            if user is not None:
-                login(request, user)
-
-                return Response(
-                    data=serializer.validated_data, status=status.HTTP_200_OK
-                )
-            else:
-                return Response(
-                    {"error": "Authentication failed"},
-                    status=status.HTTP_401_UNAUTHORIZED,
-                )
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PasswordRecoveyView(generics.GenericAPIView):
@@ -89,7 +81,7 @@ class PasswordRecoveyView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
 
-        send_password_recovery_email(request, user)
+        send_user_email(request, user, "Password Recovery", "password-reset")
 
         return Response(
             {"message": "Password recovery email sent successfully"},
