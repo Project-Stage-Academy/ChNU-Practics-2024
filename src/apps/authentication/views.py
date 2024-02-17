@@ -24,6 +24,8 @@ class RegisterView(generics.CreateAPIView):
 
 
 class VerifyEmailView(generics.GenericAPIView):
+    queryset = []
+
     @check_token_usage
     def get(self, request, *args, **kwargs):
         token = request.query_params.get("token")
@@ -102,13 +104,10 @@ class PasswordResetView(generics.CreateAPIView, TokenHandlerMixin):
         serializer.is_valid(raise_exception=True)
 
         token = request.query_params.get("token")
-
         user = decode_token(token)
 
         user.set_password(serializer.validated_data["new_password"])
         user.save()
-
-        self.blacklist_access(token)
 
         return Response(
             {"message": "Password reset successfully"}, status=status.HTTP_200_OK
