@@ -1,5 +1,4 @@
 from datetime import timedelta
-from distutils.util import strtobool
 import os
 from pathlib import Path
 
@@ -12,7 +11,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
-DEBUG = bool(strtobool(os.environ.get("DEBUG", "true")))
+DEBUG = bool(os.environ.get("DEBUG", "true").lower() == "true")
 
 allowed_hosts = os.environ.get("ALLOWED_HOSTS", ".localhost 127.0.0.1 [::1]")
 ALLOWED_HOSTS = list(map(str.strip, allowed_hosts.split(" ")))

@@ -1,4 +1,3 @@
-from distutils.util import strtobool
 import os
 
 
@@ -12,4 +11,4 @@ workers = 4
 worker_connections = 1000
 threads = 4
 
-reload = bool(strtobool(os.getenv("WEB_RELOAD", "false")))
+reload = bool(os.getenv("WEB_RELOAD", "false"))
