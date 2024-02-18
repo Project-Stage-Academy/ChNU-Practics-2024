@@ -20,7 +20,6 @@ class RegisterSerializer(
             "password1",
             "first_name",
             "last_name",
-            "role",
         ]
         extra_kwargs = {"password": {"write_only": True}}
 

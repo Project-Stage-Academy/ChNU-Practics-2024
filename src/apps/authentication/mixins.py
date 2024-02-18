@@ -4,7 +4,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from apps.users.models import User, UserRole
+from apps.users.models import User
 
 
 class ValidatePasswordMixin:
@@ -24,17 +24,7 @@ class ValidatePasswordMixin:
 class CreateUserMixin:
     def create_user(self, validated_data):
         validated_data.pop("password1")
-        user = User.objects.create_user(**validated_data)
-
-        role = validated_data.pop("role", None)
-        self.set_user_role(user, role)
-
-        return user
-
-    def set_user_role(self, user, role):
-        if role and role != UserRole.ADMIN:
-            user.role = role
-            user.save()
+        return User.objects.create_user(**validated_data)
 
 
 class TokenHandlerMixin:

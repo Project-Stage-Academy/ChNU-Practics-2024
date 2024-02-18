@@ -9,7 +9,7 @@ from django.db import models
 from django.utils import timezone
 
 
-class UserRole(models.TextChoices):
+class Role(models.TextChoices):
     ADMIN = "admin", "Admin"
     INVESTOR = "investor", "Investor"
     STARTUP = "startup", "Startup"
@@ -36,7 +36,7 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_verified", True)
-        extra_fields.setdefault("role", UserRole.ADMIN)
+        extra_fields.setdefault("role", Role.ADMIN)
 
         if extra_fields.get("is_staff") is not True:
             raise ValueError("Superuser must have is_staff=True.")
@@ -50,7 +50,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "email"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    role = models.CharField("Role", max_length=8, choices=UserRole.choices)
+    role = models.CharField(max_length=10, default=None, blank=False, null=False)
     username = models.CharField(
         "Username", max_length=64, unique=True, blank=False, null=False
     )
