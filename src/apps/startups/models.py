@@ -1,32 +1,18 @@
 import uuid
 
-from django.apps import apps
 from django.core.validators import RegexValidator
 from django.db import models
+from django.utils import timezone
+
 from apps.users.models import User
 
-from django.utils import timezone
-#from pictures.models import PictureField
 
-
-class StartupFounder(models.Model):
-    id = models.OneToOneField(
-       User, primary_key=True, editable=False, on_delete=models.CASCADE
-    )
-
-    is_active = models.BooleanField(default=True)
-
-    def __str__(self):
-        return self.id
+# from pictures.models import PictureField
 
 
 class Startup(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     company_name = models.CharField("Company Name", max_length=64)
-
-    startup_founders = models.ManyToManyField(
-        "StartupFounder", related_name="startupfounder", blank=True
-    )
 
     STARTUP_SIZE = (("S", "Small"), ("M", "Medium"), ("B", "Big"), ("L", "Large"))
 
@@ -53,7 +39,21 @@ class Startup(models.Model):
     location = models.CharField(max_length=255, null=True)
 
     created_at = models.DateTimeField("Created", default=timezone.now)
-#    is_active = models.BooleanField(default=True)
+    #    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.company_name
+
+
+class StartupFounder(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.OneToOneField(
+        User, on_delete=models.SET_NULL, related_name="investor", null=True
+    )
+    is_active = models.BooleanField(default=True)
+    startup_id = models.ForeignKey(
+        Startup, on_delete=models.SET_NULL, related_name="founders", null=True
+    )
+
+    def __str__(self):
+        return str(self.user)
