@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <title>{{ startup.company_name }} Profile</title> -->
+    <!-- Bootstrap CSS -->
+    <style>
+        /* Add Bootstrap styles here */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        /* Add more custom styles as needed */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- <h1>{{ startup.company_name }} Profile</h1> -->
+        <div class="row">
+            <div class="col-md-6">
+                <h2>General Information</h2>
+                <!-- <p><strong>Startup ID:</strong> {{ startup.id }}</p>
+                <p><strong>Company Name:</strong> {{ startup.company_name }}</p>
+                <p><strong>Size:</strong> {{ startup.get_size_display }}</p>
+                <p><strong>Phone Number:</strong> {{ startup.phone_number }}</p>
+                <p><strong>City:</strong> {{ startup.city }}</p> -->
+                <!-- Add more general information fields as needed -->
+            </div>
+            <div class="col-md-6">
+                <h2>Location</h2>
+                <!-- <p><strong>City:</strong> {{ startup.city }}</p> -->
+                <!-- Add more location-related information as needed -->
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Founders</h2>
+                <ul>
+                    <!-- {% for founder in startup.founders.all %}
+                        <li>{{ founder }}</li>
+                    {% endfor %} -->
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
