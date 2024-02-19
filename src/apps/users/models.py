@@ -6,6 +6,8 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils import timezone
 
 
@@ -81,3 +83,54 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def get_full_name(self) -> str:
         return f"{self.first_name} {self.last_name}"
+
+
+class Investor(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.OneToOneField(
+        User, on_delete=models.SET_NULL, related_name="investor", null=True
+    )
+    bio = models.TextField("Bio", max_length=500, blank=True, null=True)
+    is_active = models.BooleanField("Active", default=True)
+
+    class Meta:
+        verbose_name = "Investor"
+        verbose_name_plural = "Investors"
+        ordering = ["user"]
+
+    def __str__(self) -> str:
+        return str(self.user)
+
+
+class Founder(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.OneToOneField(
+        User, on_delete=models.SET_NULL, related_name="founder", null=True
+    )
+    bio = models.TextField("Bio", max_length=500, blank=True, null=True)
+    is_active = models.BooleanField("Active", default=True)
+
+    class Meta:
+        verbose_name = "Founder"
+        verbose_name_plural = "Founders"
+        ordering = ["user"]
+
+    def __str__(self) -> str:
+        return str(self.user)
+
+
+@receiver(post_save, sender=User)
+def create_or_update_profile(sender, instance, **kwargs):
+    """Create or update the associated profile when a user is created or updated."""
+    investor_profile, _ = Investor.objects.get_or_create(user=instance)
+    founder_profile, _ = Founder.objects.get_or_create(user=instance)
+
+    if instance.role == Role.INVESTOR.value:
+        investor_profile.is_active = True
+        founder_profile.is_active = False
+    elif instance.role == Role.STARTUP.value:
+        investor_profile.is_active = False
+        founder_profile.is_active = True
+
+    investor_profile.save()
+    founder_profile.save()
