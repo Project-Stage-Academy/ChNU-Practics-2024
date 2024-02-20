@@ -9,7 +9,7 @@ from .serializers import (
 )
 
 
-class StartupViewSet(generics.GenericAPIView):
+class StartupViewSet(viewsets.ModelViewSet):
     queryset = Startup.objects.all()
     serializer_class = StartupSerializer
 
@@ -17,4 +17,8 @@ class StartupViewSet(generics.GenericAPIView):
 
 def startup_profile_view(request, startup_id):
     startup = get_object_or_404(Startup, id=startup_id)
+
+    for founder in startup.founders.all():
+        print(founder)
+
     return render(request, "startup_profile.html", {"startup": startup})

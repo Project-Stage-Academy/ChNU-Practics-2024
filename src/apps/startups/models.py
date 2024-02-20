@@ -4,7 +4,7 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.utils import timezone
 
-from apps.users.models import User
+from apps.users.models import User, Founder
 
 
 # from pictures.models import PictureField
@@ -13,6 +13,8 @@ from apps.users.models import User
 class Startup(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     company_name = models.CharField("Company Name", max_length=64)
+
+    founders = models.ManyToManyField(Founder)
 
     STARTUP_SIZE = (("S", "Small"), ("M", "Medium"), ("B", "Big"), ("L", "Large"))
 
@@ -43,4 +45,3 @@ class Startup(models.Model):
 
     def __str__(self):
         return self.company_name
-
