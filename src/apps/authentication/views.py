@@ -58,7 +58,7 @@ class LoginView(generics.GenericAPIView):
             "username": user.username,
             "email": user.email,
             "role": user.role,
-            "access": str(refresh.access_token),
+            "access": str(refresh.access_token),  # type: ignore
             "refresh": str(refresh),
         }
 
@@ -66,7 +66,7 @@ class LoginView(generics.GenericAPIView):
 
 
 class LogoutView(generics.GenericAPIView):
-    queryset = []
+    queryset = []  # type: ignore
     serializer_class = LogoutSerializer
     permission_classes = [permissions.IsAuthenticated]
 

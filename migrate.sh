@@ -10,7 +10,7 @@ sleep 2 # wait for postgres to start
 
 PYTHON_BIN=/opt/venv/bin/python
 
-$PYTHON_BIN src/manage.py createsuperuser --noinput || true
-
 $PYTHON_BIN src/manage.py makemigrations --noinput
 $PYTHON_BIN src/manage.py migrate --noinput
+
+$PYTHON_BIN src/manage.py createsuperuser --noinput || true
