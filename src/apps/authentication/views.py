@@ -3,6 +3,8 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from .decorators import check_token_usage
+from .mixins import TokenHandlerMixin
 from .serializers import (
     LoginSerializer,
     LogoutSerializer,
@@ -22,6 +24,9 @@ class RegisterView(generics.CreateAPIView):
 
 
 class VerifyEmailView(generics.GenericAPIView):
+    queryset = []
+
+    @check_token_usage
     def get(self, request, *args, **kwargs):
         token = request.query_params.get("token")
 
@@ -89,9 +94,11 @@ class PasswordRecoveyView(generics.GenericAPIView):
         )
 
 
-class PasswordResetView(generics.CreateAPIView):
+class PasswordResetView(generics.CreateAPIView, TokenHandlerMixin):
+    queryset = []
     serializer_class = PasswordResetSerializer
 
+    @check_token_usage
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)

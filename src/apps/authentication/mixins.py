@@ -1,4 +1,5 @@
 from django.contrib.auth.password_validation import validate_password
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from rest_framework_simplejwt.exceptions import TokenError
@@ -44,3 +45,9 @@ class TokenHandlerMixin:
             RefreshToken(refresh_token).blacklist()
         except TokenError as err:
             raise serializers.ValidationError("Token is invalid or expired.") from err
+
+    @staticmethod
+    def blacklist_access(access_token):
+        # Add the access token to the cache with a timeout of 5 minutes,
+        # preventing its reuse within that time frame, aligning with the token expiration set in our application settings.
+        cache.set(access_token, "true", timeout=60 * 5)
