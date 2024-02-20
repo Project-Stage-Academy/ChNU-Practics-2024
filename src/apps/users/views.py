@@ -18,30 +18,33 @@ class UserListView(ListAPIView):
             else User.objects.all()
         )
 
-    def list(self, request):
+
+class RoleBasedListVIew(ListAPIView):
+    serializer_class = None
+    permission_classes = None
+    model = None
+
+    def get_queryset(self):
+        if self.model:
+            return self.model.objects.all()
+        return super().get_queryset()
+
+    def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
 
-class InvestorListView(ListAPIView):
-    serializer_class = InvestorSerializer
-    permission_classes = [IsFounder]
-
-    def list(self, request, *args, **kwargs):
-        queryset = Investor.objects.all()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+class InvestorListView(RoleBasedListVIew):
+    serializer_class = InvestorSerializer  # type: ignore
+    permission_classes = [IsFounder]  # type: ignore
+    model = Investor  # type: ignore
 
 
-class FounderListView(ListAPIView):
-    serializer_class = FounderSerializer
-    permission_classes = [IsInvestor]
-
-    def list(self, request, *args, **kwargs):
-        queryset = Founder.objects.all()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+class FounderListView(RoleBasedListVIew):
+    serializer_class = FounderSerializer  # type: ignore
+    permission_classes = [IsInvestor]  # type: ignore
+    model = Founder  # type: ignore
 
 
 class SwitchRoleView(RetrieveUpdateAPIView):
