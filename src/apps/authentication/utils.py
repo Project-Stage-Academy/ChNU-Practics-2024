@@ -18,7 +18,7 @@ def send_email(subject: str, message: str, recipient_list: list[str]) -> None:
 def generate_verification_link(request, user, path_name: str) -> str:
     domain = get_current_site(request).domain
     token = RefreshToken.for_user(user)
-    access_token = str(token.access_token)
+    access_token = str(token.access_token)  # type: ignore
     return f"http://{domain}{reverse(path_name)}?token={access_token}"
 
 

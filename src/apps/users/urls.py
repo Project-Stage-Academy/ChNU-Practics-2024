@@ -1,14 +1,11 @@
-from django.urls import include, path
-from rest_framework.routers import DefaultRouter
+from django.urls import path
 
-from .views import SwitchRoleView, UserViewSet
+from .views import FounderListView, InvestorListView, SwitchRoleView, UserListView
 
-
-router = DefaultRouter()
-
-router.register(r"", UserViewSet)
 
 urlpatterns = [
-    path("", include(router.urls)),
+    path("", UserListView.as_view(), name="user-list"),
+    path("investors/", InvestorListView.as_view(), name="investor-list"),
+    path("founders/", FounderListView.as_view(), name="founder-list"),
     path("<uuid:pk>/switch-role/", SwitchRoleView.as_view(), name="switch-role"),
 ]
