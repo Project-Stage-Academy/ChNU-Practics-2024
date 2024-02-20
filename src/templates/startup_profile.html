@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <title>{{ startup.company_name }} Profile</title> -->
-    <!-- Bootstrap CSS -->
+    <title>{{ startup.company_name }} Profile</title> 
     <style>
-        /* Add Bootstrap styles here */
         .container {
             max-width: 800px;
             margin: 0 auto;
@@ -15,36 +13,38 @@
         h1, h2 {
             color: #333;
         }
-        /* Add more custom styles as needed */
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- <h1>{{ startup.company_name }} Profile</h1> -->
+         <h1>{{ startup.company_name }} Profile</h1> 
         <div class="row">
             <div class="col-md-6">
                 <h2>General Information</h2>
-                <!-- <p><strong>Startup ID:</strong> {{ startup.id }}</p>
+                <p><strong>Startup ID:</strong> {{ startup.id }}</p>
                 <p><strong>Company Name:</strong> {{ startup.company_name }}</p>
                 <p><strong>Size:</strong> {{ startup.get_size_display }}</p>
                 <p><strong>Phone Number:</strong> {{ startup.phone_number }}</p>
-                <p><strong>City:</strong> {{ startup.city }}</p> -->
-                <!-- Add more general information fields as needed -->
             </div>
             <div class="col-md-6">
                 <h2>Location</h2>
-                <!-- <p><strong>City:</strong> {{ startup.city }}</p> -->
-                <!-- Add more location-related information as needed -->
+                 <p><strong>City:</strong> {{ startup.location }}</p> 
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
                 <h2>Founders</h2>
-                <ul>
-                    <!-- {% for founder in startup.founders.all %}
-                        <li>{{ founder }}</li>
-                    {% endfor %} -->
-                </ul>
+                {% if not startup.founders.all %}
+                 No Founders
+                {% else %}
+
+                {% for founder in startup.founders.all %}
+                {{ founder }}
+
+                {% endfor %}
+
+            {% endif %}
+
             </div>
         </div>
     </div>
