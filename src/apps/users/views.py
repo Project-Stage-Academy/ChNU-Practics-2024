@@ -1,13 +1,15 @@
-from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import filters, generics, permissions
 from rest_framework.response import Response
+
+from apps.startups.models import Startup
+from apps.startups.serializers import StartupSerializer
 
 from .models import Founder, Investor, Role, User
 from .permissions import IsAdminOrSelf, IsFounder, IsInvestor
 from .serializers import FounderSerializer, InvestorSerializer, UserSerializer
 
 
-class UserListView(ListAPIView):
+class UserListView(generics.ListAPIView):
     serializer_class = UserSerializer
     permission_classes = [IsAdminOrSelf]
 
@@ -19,7 +21,7 @@ class UserListView(ListAPIView):
         )
 
 
-class RoleBasedListVIew(ListAPIView):
+class RoleBasedListVIew(generics.ListAPIView):
     serializer_class = None
     permission_classes = None
     model = None
@@ -47,11 +49,22 @@ class FounderListView(RoleBasedListVIew):
     model = Founder  # type: ignore
 
 
-class SwitchRoleView(RetrieveUpdateAPIView):
-    permission_classes = [IsAuthenticated]
+class SwitchRoleView(generics.RetrieveUpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         user = request.user
         user.role = Role.INVESTOR if user.role == Role.STARTUP else Role.STARTUP
         user.save()
         return Response(UserSerializer(user).data)
+
+
+class StartupSearchView(generics.ListAPIView):
+    serializer_class = StartupSerializer
+    permission_classes = [IsInvestor]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["company_name", "founders__name", "location"]
+    filterset_fields = ["industry", "location", "size"]
+
+    def get_queryset(self):  # type: ignore
+        return Startup.objects.filter(is_active=True)
