@@ -4,17 +4,37 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.utils import timezone
 
-from apps.users.models import User, Founder
+from apps.users.models import Founder, User
 
 
-# from pictures.models import PictureField
+class Project(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    project_name = models.CharField("Project Name", max_length=64)
+    PROJECT_TYPE = (("P", "Project"), ("I", "Idea"))
+
+    type = models.CharField(
+        max_length=1,
+        choices=PROJECT_TYPE,
+        blank=True,
+        default="S",
+        help_text="Project type",
+    )
+    created_at = models.DateTimeField()
+    description = models.TextField("Bio", max_length=425, blank=True, null=True)
+    media_url = models.ImageField(upload_to="images/")
+
+    def __str__(self) -> str:
+        return self.project_name
 
 
 class Startup(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     company_name = models.CharField("Company Name", max_length=64)
+    bio = models.TextField("Bio", max_length=500, blank=True, null=True)
 
     founders = models.ManyToManyField(Founder)
+    projects = models.ManyToManyField(Project)
+
 
     STARTUP_SIZE = (("S", "Small"), ("M", "Medium"), ("B", "Big"), ("L", "Large"))
 
