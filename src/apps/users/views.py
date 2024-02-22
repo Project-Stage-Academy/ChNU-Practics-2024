@@ -1,8 +1,5 @@
-from rest_framework import filters, generics, permissions
+from rest_framework import generics, permissions
 from rest_framework.response import Response
-
-from apps.startups.models import Startup
-from apps.startups.serializers import StartupSerializer
 
 from .models import Founder, Investor, Role, User
 from .permissions import IsAdminOrSelf, IsFounder, IsInvestor
@@ -57,14 +54,3 @@ class SwitchRoleView(generics.RetrieveUpdateAPIView):
         user.role = Role.INVESTOR if user.role == Role.STARTUP else Role.STARTUP
         user.save()
         return Response(UserSerializer(user).data)
-
-
-class StartupSearchView(generics.ListAPIView):
-    serializer_class = StartupSerializer
-    permission_classes = [IsInvestor]
-    filter_backends = [filters.SearchFilter]
-    search_fields = ["company_name", "founders__name", "location"]
-    filterset_fields = ["industry", "location", "size"]
-
-    def get_queryset(self):  # type: ignore
-        return Startup.objects.filter(is_active=True)
