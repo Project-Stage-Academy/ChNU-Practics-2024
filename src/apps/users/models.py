@@ -15,12 +15,14 @@ class Role(models.TextChoices):
     ADMIN = "admin", "Admin"
     INVESTOR = "investor", "Investor"
     STARTUP = "startup", "Startup"
+    BOTH = "both", "Both"
 
 
 class CustomUserManager(BaseUserManager):
     def create_user(
         self,
         email: str,
+        role: Role | None = Role.BOTH,
         password: str | None = None,
         **extra_fields,
     ) -> "User":
@@ -28,7 +30,7 @@ class CustomUserManager(BaseUserManager):
             raise ValueError("The Email field must be set")
 
         email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
+        user = self.model(email=email, role=role, **extra_fields)
         user.set_password(password)  # type: ignore
         user.save(using=self._db)
 
@@ -38,21 +40,22 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_verified", True)
-        extra_fields.setdefault("role", Role.ADMIN)
 
         if extra_fields.get("is_staff") is not True:
             raise ValueError("Superuser must have is_staff=True.")
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
 
-        return self.create_user(email, password, **extra_fields)
+        return self.create_user(
+            email, role=Role.ADMIN, password=password, **extra_fields
+        )
 
 
 class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "email"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    role = models.CharField(max_length=10, default=None, blank=False, null=False)
+    role = models.CharField(max_length=10, choices=Role.choices, default=Role.BOTH)
     username = models.CharField(
         "Username", max_length=64, unique=True, blank=False, null=False
     )
@@ -120,17 +123,20 @@ class Founder(models.Model):
 
 
 @receiver(post_save, sender=User)
-def create_or_update_profile(sender, instance, **kwargs):
+def create_or_update_profile(sender, instance, created, **kwargs):
     """Create or update the associated profile when a user is created or updated."""
+    if instance.role == Role.ADMIN.value:
+        return
+
     investor_profile, _ = Investor.objects.get_or_create(user=instance)
     founder_profile, _ = Founder.objects.get_or_create(user=instance)
 
-    if instance.role == Role.INVESTOR.value:
+    if instance.role == Role.BOTH.value:
         investor_profile.is_active = True
-        founder_profile.is_active = False
-    elif instance.role == Role.STARTUP.value:
-        investor_profile.is_active = False
         founder_profile.is_active = True
+    else:
+        investor_profile.is_active = instance.role == Role.INVESTOR.value
+        founder_profile.is_active = instance.role == Role.STARTUP.value
 
     investor_profile.save()
     founder_profile.save()

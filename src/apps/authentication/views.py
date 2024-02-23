@@ -23,7 +23,7 @@ class RegisterView(generics.CreateAPIView):
         send_user_email(self.request, user, "Verify Email", "verify-email")
 
 
-class VerifyEmailView(generics.GenericAPIView):
+class VerifyEmailView(generics.GenericAPIView, TokenHandlerMixin):
     queryset = []
 
     @check_token_usage

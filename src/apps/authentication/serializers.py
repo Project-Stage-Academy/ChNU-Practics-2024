@@ -16,6 +16,7 @@ class RegisterSerializer(
         fields = [
             "email",
             "username",
+            "role",
             "password",
             "password1",
             "first_name",
@@ -23,8 +24,8 @@ class RegisterSerializer(
         ]
         extra_kwargs = {"password": {"write_only": True}}
 
-    def create(self, vaslidated_data):
-        return self.create_user(vaslidated_data)
+    def create(self, validated_data):
+        return self.create_user(validated_data)
 
     def validate(self, attrs):
         attrs = super().validate(attrs)
@@ -39,7 +40,7 @@ class LogoutSerializer(serializers.Serializer, TokenHandlerMixin):
         self.token = attrs.get("refresh")
         return super().validate(attrs)
 
-    def save(self):
+    def save(self, **kwargs):
         self.blacklist_token(self.token)
 
 
