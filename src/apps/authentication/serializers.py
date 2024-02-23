@@ -16,6 +16,7 @@ class RegisterSerializer(
         fields = [
             "email",
             "username",
+            "role",
             "password",
             "password1",
             "first_name",

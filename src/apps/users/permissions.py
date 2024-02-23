@@ -8,11 +8,17 @@ class IsAdminOrSelf(permissions.BasePermission):
         return request.user.is_superuser or obj == request.user
 
 
-class IsInvestor(permissions.BasePermission):
+class HasRole(permissions.BasePermission):
+    role = None
+
     def has_permission(self, request, view):
-        return request.user.role == Role.INVESTOR
+        user_role = request.user.role
+        return user_role == self.role or user_role == Role.BOTH
 
 
-class IsFounder(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return request.user.role == Role.STARTUP
+class IsInvestor(HasRole):
+    role = Role.INVESTOR
+
+
+class IsFounder(HasRole):
+    role = Role.STARTUP
