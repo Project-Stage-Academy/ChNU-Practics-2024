@@ -52,7 +52,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "email"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    role = models.CharField(max_length=10, default=None, blank=False, null=False)
+    role = models.CharField(max_length=10, choices=Role.choices, default=Role.INVESTOR)
     username = models.CharField(
         "Username", max_length=64, unique=True, blank=False, null=False
     )
