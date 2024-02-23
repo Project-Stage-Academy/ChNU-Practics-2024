@@ -1,18 +1,16 @@
-from django.contrib import admin
-from django.urls import include, path
+from django.urls import path
 from rest_framework import routers
 
-from .views import (
-    startup_profile_view,
-    StartupViewSet
-)
+from .views import SearchStartupView, startup_profile_view, StartupViewSet
+
+
 router = routers.DefaultRouter()
 router.register("", StartupViewSet)
 
 
 urlpatterns = [
-    path("<uuid:startup_id>/", startup_profile_view, name="startup_profile"),
+    path("<uuid:id>/", startup_profile_view, name="startup_profile"),
+    path("search/", SearchStartupView.as_view(), name="search_startup"),
 ]
 
 urlpatterns += router.urls
-

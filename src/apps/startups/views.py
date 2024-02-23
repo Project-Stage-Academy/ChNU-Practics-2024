@@ -4,7 +4,7 @@ from rest_framework import filters, generics, viewsets
 from apps.users.permissions import IsInvestor
 
 from .models import Startup
-from .serializers import StartupSerializer
+from .serializers import FilteredStartupSerializer, StartupSerializer
 
 
 class StartupViewSet(viewsets.ModelViewSet):
@@ -12,21 +12,27 @@ class StartupViewSet(viewsets.ModelViewSet):
     serializer_class = StartupSerializer
 
 
-def startup_profile_view(request, startup_id):
-    startup = get_object_or_404(Startup, id=startup_id)
-
-    for founder in startup.founders.all():
-        print(founder)
-
+def startup_profile_view(request, id):
+    startup = get_object_or_404(Startup, id=id)
     return render(request, "startup_profile.html", {"startup": startup})
 
 
-class StartupSearchView(generics.ListAPIView):
-    serializer_class = StartupSerializer
+class SearchStartupView(generics.ListAPIView):
+    serializer_class = FilteredStartupSerializer
     permission_classes = [IsInvestor]
     filter_backends = [filters.SearchFilter]
-    search_fields = ["company_name", "founders__name", "location"]
-    filterset_fields = ["industry", "location", "size"]
+    search_fields = ["company_name", "location"]
+    filterset_fields = ["location", "size"]
 
     def get_queryset(self):  # type: ignore
-        return Startup.objects.filter(is_active=True)
+        queryset = Startup.objects.filter(is_active=True)
+
+        location = self.request.query_params.get("location")
+        size = self.request.query_params.get("size")
+
+        if location:
+            queryset = queryset.filter(location__icontains=location)
+        if size:
+            queryset = queryset.filter(size=size)
+
+        return queryset
