@@ -9,41 +9,25 @@ from .serializers import FounderSerializer, InvestorSerializer, UserSerializer
 class UserListView(generics.ListAPIView):
     serializer_class = UserSerializer
     permission_classes = [IsAdminOrSelf]
-
-    def get_queryset(self):
-        return (
-            User.objects.filter(id=self.request.user.id)  # type: ignore
-            if not self.request.user.is_superuser  # type: ignore
-            else User.objects.all()
-        )
-
-
-class RoleBasedListVIew(generics.ListAPIView):
-    serializer_class = None
-    permission_classes = None
-    model = None
-
-    def get_queryset(self):
-        if self.model:
-            return self.model.objects.all()
-        return super().get_queryset()
+    queryset = User.objects.all()
 
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        if not request.user.is_superuser:
+            self.queryset = User.objects.filter(id=request.user.id)
+
+        return super().list(request, *args, **kwargs)
 
 
-class InvestorListView(RoleBasedListVIew):
-    serializer_class = InvestorSerializer  # type: ignore
-    permission_classes = [IsFounder]  # type: ignore
-    model = Investor  # type: ignore
+class InvestorListView(ListAPIView):
+    serializer_class = InvestorSerializer
+    permission_classes = [IsFounder]
+    queryset = Investor.objects.filter(is_active=True)
 
 
-class FounderListView(RoleBasedListVIew):
-    serializer_class = FounderSerializer  # type: ignore
-    permission_classes = [IsInvestor]  # type: ignore
-    model = Founder  # type: ignore
+class FounderListView(ListAPIView):
+    serializer_class = FounderSerializer
+    permission_classes = [IsInvestor]
+    queryset = Founder.objects.filter(is_active=True)
 
 
 class SwitchRoleView(generics.RetrieveUpdateAPIView):
@@ -51,6 +35,7 @@ class SwitchRoleView(generics.RetrieveUpdateAPIView):
 
     def post(self, request, *args, **kwargs):
         user = request.user
-        user.role = Role.INVESTOR if user.role == Role.STARTUP else Role.STARTUP
-        user.save()
+        if user.role != Role.BOTH:
+            user.role = Role.INVESTOR if user.role == Role.STARTUP else Role.STARTUP
+            user.save()
         return Response(UserSerializer(user).data)
