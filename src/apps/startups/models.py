@@ -12,15 +12,15 @@ class Project(models.Model):
     project_name = models.CharField("Project Name", max_length=64)
     PROJECT_TYPE = (("P", "Project"), ("I", "Idea"))
 
-    type = models.CharField(
+    project_type = models.CharField(
         max_length=1,
         choices=PROJECT_TYPE,
         blank=True,
-        default="S",
+        default="P",
         help_text="Project type",
     )
-    created_at = models.DateTimeField()
-    description = models.TextField("Bio", max_length=425, blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    description = models.TextField("Description", max_length=500, blank=True, null=True)
     media_url = models.ImageField(upload_to="images/")
 
     def __str__(self) -> str:
