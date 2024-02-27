@@ -6,9 +6,8 @@ from .views import (
     startup_profile_view,
     StartupListAPIView,
     StartupRetrieveUpdateAPIView,
-    # StartupRetrieveAPIView,
-    # StartupUpdateAPIView,
     StartupViewSet,
+  SearchStartupView,
 )
 
 
@@ -17,9 +16,10 @@ router.register("", StartupViewSet)
 
 
 urlpatterns = [
-    path("<uuid:startup_id>/", startup_profile_view, name="startup_profile"),
     path("", StartupListAPIView.as_view(), name="startup_list"), 
     path("<uuid:id>/update/", StartupRetrieveUpdateAPIView.as_view(), name="startup_update"),
+    path("<uuid:pk>/", startup_profile_view, name="startup_profile"),
+    path("search/", SearchStartupView.as_view(), name="search_startup"),
 ]
 
 urlpatterns += router.urls

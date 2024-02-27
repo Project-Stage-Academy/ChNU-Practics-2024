@@ -35,13 +35,11 @@ class Startup(models.Model):
     founders = models.ManyToManyField(Founder)
     projects = models.ManyToManyField(Project)
 
-
     STARTUP_SIZE = (("S", "Small"), ("M", "Medium"), ("B", "Big"), ("L", "Large"))
 
     size = models.CharField(
         max_length=1,
         choices=STARTUP_SIZE,
-        blank=True,
         default="S",
         help_text="Startup size",
     )
@@ -58,7 +56,8 @@ class Startup(models.Model):
         ],
     )
 
-    location = models.CharField(max_length=255, null=True)
+    location = models.CharField(max_length=255, blank=True)
+
 
     created_at = models.DateTimeField("Created", default=timezone.now)
     is_active = models.BooleanField(default=True)
