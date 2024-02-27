@@ -1,12 +1,8 @@
-from django.shortcuts import get_object_or_404, redirect, render
-from rest_framework import generics, permissions, status, viewsets, filters
+from django.shortcuts import get_object_or_404, render
+from rest_framework import filters, generics, viewsets
 from rest_framework.generics import (
-    ListAPIView,
-    RetrieveAPIView,
     RetrieveUpdateAPIView,
-    UpdateAPIView,
 )
-from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from apps.users.permissions import IsInvestor
@@ -18,7 +14,6 @@ from .serializers import FilteredStartupSerializer, StartupSerializer
 class StartupRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     queryset = Startup.objects.all()
     serializer_class = StartupSerializer
-    lookup_field = "id"
 
 
 class StartupViewSet(viewsets.ModelViewSet):
@@ -29,13 +24,6 @@ class StartupViewSet(viewsets.ModelViewSet):
 class StartupListAPIView(generics.ListCreateAPIView):
     queryset = Startup.objects.all()
     serializer_class = StartupSerializer
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 def startup_profile_view(request, pk):

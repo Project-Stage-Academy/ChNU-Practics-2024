@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
 from apps.users.models import Founder
-from apps.users.serializers import FounderSerializer
 
 from .models import Startup
 
