@@ -15,7 +15,7 @@ class StartupSerializer(serializers.ModelSerializer):
 
 class FilteredStartupSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
-        view_name="startup_profile", lookup_field="id"
+        view_name="startup_profile", lookup_field="pk"
     )
 
     class Meta:

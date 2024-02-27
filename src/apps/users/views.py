@@ -1,4 +1,5 @@
 from rest_framework import generics, permissions
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Founder, Investor, Role, User
@@ -8,7 +9,7 @@ from .serializers import FounderSerializer, InvestorSerializer, UserSerializer
 
 class UserListView(generics.ListAPIView):
     serializer_class = UserSerializer
-    permission_classes = [IsAdminOrSelf]
+    permission_classes = [IsAuthenticated, IsAdminOrSelf]
     queryset = User.objects.all()
 
     def list(self, request, *args, **kwargs):
@@ -18,15 +19,15 @@ class UserListView(generics.ListAPIView):
         return super().list(request, *args, **kwargs)
 
 
-class InvestorListView(ListAPIView):
+class InvestorListView(generics.ListAPIView):
     serializer_class = InvestorSerializer
-    permission_classes = [IsFounder]
+    permission_classes = [IsAuthenticated, IsFounder]
     queryset = Investor.objects.filter(is_active=True)
 
 
-class FounderListView(ListAPIView):
+class FounderListView(generics.ListAPIView):
     serializer_class = FounderSerializer
-    permission_classes = [IsInvestor]
+    permission_classes = [IsAuthenticated, IsInvestor]
     queryset = Founder.objects.filter(is_active=True)
 
 

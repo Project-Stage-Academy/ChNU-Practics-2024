@@ -9,7 +9,7 @@ router.register("", StartupViewSet)
 
 
 urlpatterns = [
-    path("<uuid:id>/", startup_profile_view, name="startup_profile"),
+    path("<uuid:pk>/", startup_profile_view, name="startup_profile"),
     path("search/", SearchStartupView.as_view(), name="search_startup"),
 ]
 

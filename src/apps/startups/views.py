@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404, render
 from rest_framework import filters, generics, viewsets
+from rest_framework.permissions import IsAuthenticated
 
 from apps.users.permissions import IsInvestor
 
@@ -12,14 +13,14 @@ class StartupViewSet(viewsets.ModelViewSet):
     serializer_class = StartupSerializer
 
 
-def startup_profile_view(request, id):
-    startup = get_object_or_404(Startup, id=id)
+def startup_profile_view(request, pk):
+    startup = get_object_or_404(Startup, id=pk)
     return render(request, "startup_profile.html", {"startup": startup})
 
 
 class SearchStartupView(generics.ListAPIView):
     serializer_class = FilteredStartupSerializer
-    permission_classes = [IsInvestor]
+    permission_classes = [IsAuthenticated, IsInvestor]
     filter_backends = [filters.SearchFilter]
     search_fields = ["company_name", "location"]
     filterset_fields = ["location", "size"]
