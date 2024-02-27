@@ -4,10 +4,7 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.utils import timezone
 
-from apps.users.models import User, Founder
-
-
-# from pictures.models import PictureField
+from apps.users.models import Founder
 
 
 class Startup(models.Model):

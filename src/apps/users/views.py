@@ -1,4 +1,4 @@
-from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView
+from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -7,9 +7,9 @@ from .permissions import IsAdminOrSelf, IsFounder, IsInvestor
 from .serializers import FounderSerializer, InvestorSerializer, UserSerializer
 
 
-class UserListView(ListAPIView):
+class UserListView(generics.ListAPIView):
     serializer_class = UserSerializer
-    permission_classes = [IsAdminOrSelf]
+    permission_classes = [IsAuthenticated, IsAdminOrSelf]
     queryset = User.objects.all()
 
     def list(self, request, *args, **kwargs):
@@ -19,20 +19,20 @@ class UserListView(ListAPIView):
         return super().list(request, *args, **kwargs)
 
 
-class InvestorListView(ListAPIView):
+class InvestorListView(generics.ListAPIView):
     serializer_class = InvestorSerializer
-    permission_classes = [IsFounder]
+    permission_classes = [IsAuthenticated, IsFounder]
     queryset = Investor.objects.filter(is_active=True)
 
 
-class FounderListView(ListAPIView):
+class FounderListView(generics.ListAPIView):
     serializer_class = FounderSerializer
-    permission_classes = [IsInvestor]
+    permission_classes = [IsAuthenticated, IsInvestor]
     queryset = Founder.objects.filter(is_active=True)
 
 
-class SwitchRoleView(RetrieveUpdateAPIView):
-    permission_classes = [IsAuthenticated]
+class SwitchRoleView(generics.RetrieveUpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         user = request.user
