@@ -29,7 +29,7 @@ extend-exclude = 'migrations/*'
 [tool.ruff]
 src = ["src"]
 line-length = 88
-ignore = [
+lint.ignore = [
   "E721", # Do not compare types, use `isinstance()`
   # pydocstyle ignore
   "D100", # Missing docstring in public module
@@ -49,7 +49,7 @@ ignore = [
   "D415", # First line should end with a period, question mark, or exclamation point
   "E501", # Line too long
 ]
-select = ["B", "D", "E", "F", "I", "N", "Q", "W"]
+lint.select = ["B", "D", "E", "F", "I", "N", "Q", "W"]
 
 [tool.ruff.lint.isort]
 force-single-line = true

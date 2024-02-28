@@ -1,7 +1,9 @@
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
-from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import TokenError
+
 from apps.users.models import User
 from apps.users.models import UserRole
 
@@ -60,18 +62,23 @@ class RegisterSerializer(serializers.ModelSerializer):
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField()
 
-    default_error_messages = {
-        'bad_token': "Token is invalid."
-    }
+    default_error_messages = {"bad_token": "Token is invalid."}
 
-    def validate(self, attrs):
-        self.token = attrs('refresh')
+    def validate_and_set_token(self, attrs):
+        refresh = serializers.CharField()
+        self.token = attrs["refresh"]
 
+        if not refresh:
+            raise serializers.ValidationError("Refresh token is required.")
+
+        self.token = refresh
         return attrs
 
     def save(self, **kwargs):
         try:
             RefreshToken(self.token).blacklist()
+            # Якщо токен успішний
+            return {"message": "Токен успішний"}, 200
 
         except TokenError:
-            self.fail('bad_token')
+            self.fail("bad_token")

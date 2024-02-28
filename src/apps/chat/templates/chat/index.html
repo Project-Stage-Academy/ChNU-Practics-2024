@@ -1,4 +1,4 @@
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8"/>
     <title>Chat Rooms</title>
@@ -16,7 +16,7 @@
             }
         };
 
-        document.querySelector('#room-name-submit').onclick = function(e) {
+        document.querySelector('#room-name-submit').onclick = function(_e) {
             const roomName = document.querySelector('#room-name-input').value;
             window.location.pathname = '/chat/' + roomName + '/';
         };

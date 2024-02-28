@@ -16,7 +16,7 @@ class CustomPasswordValidator:
         self.require_number = require_number
         self.require_special_symbol = require_special_symbol
 
-    def validate(self, password, user=None):
+    def validate(self, password):
         if self.require_uppercase and not any(char.isupper() for char in password):
             raise ValidationError(
                 "Password must contain at least one uppercase letter.",

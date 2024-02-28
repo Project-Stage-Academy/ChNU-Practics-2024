@@ -1,9 +1,10 @@
 from rest_framework import generics
+from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework import permissions
 
-from .serializers import RegisterSerializer, LogoutSerializer
+from .serializers import LogoutSerializer
+from .serializers import RegisterSerializer
 
 
 class RegisterView(generics.CreateAPIView):
@@ -25,6 +26,10 @@ class LogoutApiView(generics.GenericAPIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
+
         serializer.save()
 
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        #  JSON-відповідь про успіх
+        return Response(
+            {"message": "Операція виконана успішно"}, status=status.HTTP_200_OK
+        )
