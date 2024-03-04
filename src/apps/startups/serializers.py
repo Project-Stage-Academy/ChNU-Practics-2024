@@ -1,12 +1,13 @@
 from rest_framework import serializers
 
-from apps.users.serializers import FounderSerializer
+from apps.users.models import Founder
 
 from .models import Startup
 
 
 class StartupSerializer(serializers.ModelSerializer):
-    founders = FounderSerializer(many=True, read_only=True)
+    founders = serializers.PrimaryKeyRelatedField(queryset=Founder.objects.all(), many=True)
+
 
     class Meta:
         model = Startup

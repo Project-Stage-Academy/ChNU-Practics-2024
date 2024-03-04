@@ -7,11 +7,33 @@ from django.utils import timezone
 from apps.users.models import Founder
 
 
+class Project(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    project_name = models.CharField("Project Name", max_length=64)
+    PROJECT_TYPE = (("P", "Project"), ("I", "Idea"))
+
+    project_type = models.CharField(
+        max_length=1,
+        choices=PROJECT_TYPE,
+        blank=True,
+        default="P",
+        help_text="Project type",
+    )
+    created_at = models.DateTimeField(default=timezone.now)
+    description = models.TextField("Description", max_length=500, blank=True)
+    media_url = models.ImageField(upload_to="images/", blank=True)
+
+    def __str__(self) -> str:
+        return self.project_name
+
+
 class Startup(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     company_name = models.CharField("Company Name", max_length=64)
+    bio = models.TextField("Bio", max_length=500, blank=True)
 
     founders = models.ManyToManyField(Founder)
+    projects = models.ManyToManyField(Project, blank=True)
 
     STARTUP_SIZE = (("S", "Small"), ("M", "Medium"), ("B", "Big"), ("L", "Large"))
 
@@ -35,6 +57,7 @@ class Startup(models.Model):
     )
 
     location = models.CharField(max_length=255, blank=True)
+
 
     created_at = models.DateTimeField("Created", default=timezone.now)
     is_active = models.BooleanField(default=True)

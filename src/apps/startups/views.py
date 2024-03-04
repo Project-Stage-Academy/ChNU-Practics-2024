@@ -1,5 +1,8 @@
 from django.shortcuts import get_object_or_404, render
 from rest_framework import filters, generics, viewsets
+from rest_framework.generics import (
+    RetrieveUpdateAPIView,
+)
 from rest_framework.permissions import IsAuthenticated
 
 from apps.users.permissions import IsInvestor
@@ -8,7 +11,17 @@ from .models import Startup
 from .serializers import FilteredStartupSerializer, StartupSerializer
 
 
+class StartupRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+    queryset = Startup.objects.all()
+    serializer_class = StartupSerializer
+
+
 class StartupViewSet(viewsets.ModelViewSet):
+    queryset = Startup.objects.all()
+    serializer_class = StartupSerializer
+
+
+class StartupListAPIView(generics.ListCreateAPIView):
     queryset = Startup.objects.all()
     serializer_class = StartupSerializer
 
